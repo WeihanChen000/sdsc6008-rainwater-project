@@ -1,0 +1,129 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{fontspec,geometry,graphicx,booktabs,fancyhdr,xcolor}
+\usepackage[hidelinks]{hyperref}
+\setmainfont{Times New Roman}
+\setsansfont{Arial}
+\geometry{left=22mm,right=22mm,top=22mm,bottom=21mm,headheight=15pt}
+\setlength{\parindent}{0pt}\setlength{\parskip}{6pt}
+\pagestyle{fancy}\fancyhf{}\lhead{\small SDSC 6008 \enspace / \enspace Final project}\rhead{\small Rainwater harvesting}\rfoot{\thepage}
+\newcommand{\topic}[1]{\section*{\sffamily #1}}
+\newcommand{\fig}[3]{\begin{center}\includegraphics[width=#1\linewidth]{#2}\end{center}{\small\itshape #3\par}}
+\begin{document}
+{\Large\sffamily\bfseries How much storage helps a Hong Kong rooftop rainwater system?}\par
+Weihan Chen (61074487) \quad Juwen Li (60945590)\par
+\topic{1 \quad Research question and rainfall record}
+A tank can overflow in a storm and run dry the following week. For a building in Hong Kong, how much extra storage would actually help? We used daily rainfall to compare the roof area draining to one tank, its usable capacity and the depth of rain diverted at the start of each event. We assumed a daily demand for non-potable uses such as cleaning.
+
+We tested three expectations. H1 predicts that larger tanks increase coverage with diminishing gains. H2 predicts that a greater first-flush depth reduces or leaves unchanged the available supply. H3 predicts that expanding the roof helps more with a larger tank. We tested the first two with equal increments at centre settings and the third with contrasts between factorial corners. We then asked which tested capacities clear an illustrative coverage target and when an extra unit of storage supplies water.
+
+The input was the Hong Kong Observatory's archived daily rainfall series [1]. Every calendar date from 2020 through 2024 appeared exactly once with completeness flag C. Trace denotes less than 0.05 mm. We assigned it zero effective rainfall under the model's wet-day threshold of 0.1 mm. A missing observation would fail the input check. Each simulation started with an empty tank in the preceding calendar year. After selecting a candidate capacity, we checked it against 30 earlier rainfall years from the same archive (section 8).
+\begin{center}\begin{tabular}{lrrrl}\toprule
+Year & Days & Trace days & Effective rain (mm) & Use\\\midrule
+2020&366&57&2395.0&Warm-up\\
+2021&365&57&2307.1&Design block\\
+2022&365&52&2205.4&Design block\\
+2023&365&60&2774.5&Design block\\
+2024&366&73&2309.7&Weather check\\\bottomrule
+\end{tabular}\end{center}
+\textbf{Outcome.} Coverage is 100 times the total rainwater supplied divided by total demand during the target year. We also recorded the annual backup volume, overflow volume and number of days with a shortfall. A change from 50\% to 55\% coverage is a gain of five percentage points (pp). Coverage describes quantity. Whether the collected water is suitable for an application requires a treatment and quality assessment [2].
+\newpage
+\topic{2 \quad Experimental design and daily water balance}
+We used a face-centred central composite design [3] with eight full factorial corners, six axial settings and one centre. We blocked by year because the amount and timing of rainfall can change coverage even when the roof and tank stay the same. Each year contained all 15 settings, so no treatment effect was confounded with year. We kept each year's rainfall in date order. For each repeat we drew a new sequence of daily water demand.
+\begin{center}\small\begin{tabular}{rrrrrrr}\toprule
+Setting & Roof (m$^2$) & Tank (m$^3$) & Flush (mm) & 2021 & 2022 & 2023\\\midrule
+1&300&5&0&10&10&10\\2&300&5&1.5&10&10&10\\3&300&20&0&10&10&10\\4&300&20&1.5&10&10&10\\5&700&5&0&10&10&10\\6&700&5&1.5&10&10&10\\7&700&20&0&10&10&10\\8&700&20&1.5&10&10&10\\\midrule
+9&300&12.5&0.75&10&10&10\\10&700&12.5&0.75&10&10&10\\11&500&5&0.75&10&10&10\\12&500&20&0.75&10&10&10\\13&500&12.5&0&10&10&10\\14&500&12.5&1.5&10&10&10\\15&500&12.5&0.75&10&10&10\\\bottomrule
+\end{tabular}\end{center}
+Within each block, base R shuffled run order. Each run used a distinct recorded seed and independent daily demand draws from a uniform distribution spanning 0.96--1.44 m$^3$ (mean 1.2). The separate pilot used ten trajectories per cell. Its largest standard error for mean coverage was 0.1615 pp, below the implementation target of 0.25 pp. The main experiment retained ten repeats, giving 450 scored trajectories, including 240 at the factorial corners.
+
+At the start of a wet spell, a diversion allowance equal to the selected flush depth is opened. Each wet day draws down the remaining allowance before contributing water to the tank. One dry day separates events in the baseline. Retained depth in millimetres times roof area times an assumed collection factor of 0.8, divided by 1,000, gives the inflow in cubic metres. The 0 mm setting is a yield benchmark. WSD describes first-flush removal in rainwater collection and pre-treatment [2].
+
+On each day, storage carried from yesterday serves demand first. Backup covers any shortfall. Today's inflow then enters the tank and excess spills. The script checks daily water balance, bounds and the annual identity supply plus backup equals demand. A two-day hand check tests filling, overflow and next-day withdrawal.
+\newpage
+\topic{3 \quad Execution and annual outcomes}
+Figure 1 shows one of the 450 runs. In 2021, setting 13 used a 500 m$^2$ roof, a 12.5 m$^3$ tank and zero diversion. With demand seed 100001, the tank supplied 245.0235 m$^3$ of the 437.1300 m$^3$ needed that year. Dividing supply by demand gives 56.05\% coverage. Backup water supplied the remaining 192.1065 m$^3$.
+\fig{0.92}{day1/step4.jpg}{Figure 1. Actual RStudio output for the example run. The year-by-setting counts above the selected trajectory sum to 450.}
+
+\begin{center}\small\begin{tabular}{lrrrr}\toprule
+Block & Coverage (\%) & Backup (m$^3$) & Overflow (m$^3$) & Days needing backup\\\midrule
+2021&50.87&215.09&687.89&190.85\\2022&58.35&182.33&615.29&164.41\\2023&54.22&200.47&861.84&176.26\\\bottomrule
+\end{tabular}\end{center}
+Each setting contributes equally to the table, so the mean number of days can be fractional. Of the three years, 2023 had the most rain and the most overflow. In 2022, the driest year by annual total, the tank covered the largest share of demand. How much rain the building can use depends on when it falls and how much room is left in the tank.
+\newpage
+\topic{4 \quad Factorial effects and hypothesis tests}
+Across the eight corners, increasing tank capacity from 5 to 20 m$^3$ raised coverage by 20.16 pp. Increasing roof area from 300 to 700 m$^2$ added 8.60 pp, while increasing diversion from 0 to 1.5 mm reduced coverage by 2.44 pp. These magnitudes apply to the tested ranges. The uncertainty intervals below combine independent cell-mean variances with Welch degrees of freedom, conditional on the three selected years.
+\begin{center}\small\begin{tabular}{lrr}\toprule
+Contrast averaged over the three blocks & Estimate (pp) & 95\% interval (pp)\\\midrule
+Roof, high minus low &8.60 &[8.52, 8.68]\\
+Tank, high minus low &20.16 &[20.08, 20.24]\\
+Flush, high minus low &$-2.44$ &[$-2.52$, $-2.36$]\\
+Increase in roof benefit at high tank capacity &1.91 &[1.75, 2.06]\\\bottomrule
+\end{tabular}\end{center}
+\fig{0.78}{final/tank_curve.png}{Figure 2. At 500 m$^2$ and 0.75 mm diversion, coverage consistently rises more on the first 7.5 m$^3$ increment.}
+\textbf{H1 and H2.} The two equal capacity increments added 14.28 and 6.41 pp. The difference was 7.86 pp (95\% interval 7.63--8.10), supporting diminishing gains at the centre roof and diversion settings. For H2, a deeper first flush sends more water away from the tank whenever enough rain falls. With the same rain and demand, this can only lower coverage or leave it unchanged. The simulation tells us how much coverage was lost. At the centre roof and tank settings, raising diversion from 0 to 0.75 mm cost 1.38 pp on average across the three years. Raising it from 0.75 to 1.50 mm cost a further 1.04 pp.
+
+\textbf{H3 and the other interactions.} Moving from the small tank to the large one increased the benefit of a larger roof by 4.35 pp in 2021 and 2.89 pp in 2022. In 2023 the benefit fell by 1.52 pp. The mean difference was 1.91 pp. On the conventional factorial scale (half this difference), roof by tank was $+0.95$ pp. On the same scale, roof by flush was $-0.69$ pp. Diverting more rain reduced the gain from a larger roof. Tank by flush was $+0.36$ pp. The penalty for diversion was smaller with a larger tank. These are averages over the three years and both levels of the remaining factor.
+
+The blocked ANOVA with common effects gave $F(1,230)=8.91$ ($p=0.0031$) for roof by tank and $p=0.54$ for the three-way interaction. Fitting separate factorial effects by year reduced residual sum of squares from 1410.22 to 20.35 ($F(14,216)=1053.5$, $p<0.001$, joint test). H3 held in two of the three years.
+
+\textbf{Residual check.} For the year-specific corner model, the residual plot showed no clear funnel. The normal Q--Q plot followed the line through the centre, with deviations in the tails. Within-cell SDs ranged from 0.13 to 0.42 pp across the 24 cells (10 runs each). A median-centred Brown--Forsythe test gave $F(23,216)=0.87$, $p=0.64$. With only ten runs per cell, we kept separate cell variances for the contrast intervals above. Both diagnostic plots are in the R supplement.
+\newpage
+\topic{5 \quad Response surface and prediction checks}
+We coded each factor as $-1,0,+1$ and fitted a quadratic surface with year intercepts, three linear terms, all pairwise interactions and three squared terms. The tank coefficient was 10.13 pp per coded unit at the centre. Its squared term was $-3.95$ pp, consistent with the direct capacity contrasts. The common surface explained 95.85\% of the run-level variation, with a residual standard error of 2.07 pp.
+\fig{0.85}{final/diagnostics.png}{Figure 3. Common-surface residuals cluster by setting. The smoother curves upwards at the extremes and the Q--Q points depart systematically from the reference line.}
+These patterns matter because within-cell variation from demand was small. Against 45 separate setting-year means, the common surface gave a lack-of-fit $F(33,405)=569.88$. Allowing each year its own surface reduced residual sum of squares from 1876.40 to 81.44. The remaining lack of fit was still detectable ($F(15,405)=28.59$). Narrow simulation intervals describe demand uncertainty only.
+
+We checked four interior settings (roof in m$^2$, tank in m$^3$, diversion in mm): $(400,8,0.40)$, $(600,16,1.10)$, $(450,17,0.35)$ and $(650,7,1.20)$. Each had ten new demand paths per year. Across those 12 means, the common surface missed simulated coverage by 1.20 pp on average and by as much as 2.44 pp. Separate surfaces for each year brought the average absolute error down to 0.47 pp. 
+    
+\textbf{Would the surface pick the same tank?} We checked the 55\% target in 2021 with the roof fixed at 500 m$^2$ and diversion at 0.75 mm. The direct means use the same 30 demand paths at both sizes.
+\begin{center}\small\begin{tabular}{rrr}\toprule
+Tank (m$^3$) & Common surface (\%) & Direct simulation mean (\%)\\\midrule
+14 & 56.06 & 54.90\\
+15 & 57.13 & 55.57\\\bottomrule
+\end{tabular}\end{center}
+The surface put both tanks above 55\%. In the direct simulations only the 15 m$^3$ tank crossed that line on average. We used the direct simulations for the sizing decision on the next page.
+
+The additional weather check used 2023 for warm-up and 2024 for scoring. The centre setting gave 55.61\% coverage, compared with a historical mean of 57.79\%. Setting 7 remained the highest-yield setting in 2024 at 62.87\%, down from 68.95\%. Its zero diversion prevents interpreting this ranking as an installation recommendation.
+\newpage
+\topic{6 \quad Sizing a tank for a coverage target}
+To see where tank size would change a decision, we held roof area at 500 m$^2$ and first-flush depth at 0.75 mm. We tested capacities from 5 to 20 m$^3$ in steps of 1 m$^3$, plus the original centre setting of 12.5 m$^3$. Within each year all 17 capacities faced the same 30 demand paths. This gave 2,040 simulated outcomes from 120 distinct paths over four years.
+\fig{0.96}{final/capacity_decision.png}{Figure 4. Blue shows the lowest of the three historical annual means at each capacity. Brown shows the additional year. Dotted lines mark illustrative service targets.}
+\begin{center}\small\begin{tabular}{lrrr}\toprule
+Tank (m$^3$)&Lowest 2021--23 mean (\%)&2024 mean (\%)&55\% in every historical block\\\midrule
+12.5&53.83&55.56&No\\14&54.90&56.58&No\\15&55.57&57.26&Yes\\20&57.02&59.69&Yes\\\bottomrule
+\end{tabular}\end{center}
+The 55\% target was illustrative. Of the sizes tested, 15 m$^3$ was the first to reach it in all three historical means. The tightest year was 2021. At 14 m$^3$, the 95\% interval for mean coverage was 54.78--55.01\%, just straddling the target. At 15 m$^3$ it was 55.46--55.69\%, entirely above it. On the same 30 demand paths, the extra cubic metre added 0.68 pp (paired 95\% interval 0.67--0.69 pp). These $t$ intervals measure uncertainty from simulated demand with 2021 rainfall held fixed.
+
+No tested capacity met the 60\% target in all three design years, so none met 65\% in all three either. The 2024 record was already available when we chose these targets and serves as a retrospective weather comparison.
+\newpage
+\topic{7 \quad When extra storage supplies water}
+We classified each day by its consecutive count since daily rain last reached 0.1 mm. The same 120 demand paths as in the capacity sweep were compared at 5 and 20 m$^3$. Coverage within a band is aggregate supply divided by aggregate demand in that band. The share of gain uses each band's additional supplied volume as a fraction of total additional supply. The category describes conditions on the delivery day, including water stored from earlier rain.
+\fig{0.87}{final/dry_chart.png}{Figure 5. Larger storage sustains supply into dry spells. On dry days 4--7 coverage rises from 9.93\% to 49.05\%.}
+Days 4--7 accounted for 15.67\% of the simulated days but 32.81\% of additional supply. Wet days also contributed 29.96\% of the gain because the baseline draws from previous storage. On day 8 and beyond, coverage rose from 0 to 17.43\%. A larger tank bridges short gaps more effectively than prolonged shortages.
+
+\textbf{Sensitivity.} Seven one-at-a-time changes reused the 450 main-run seeds. Across those scenarios, the high-minus-low capacity effect ranged from 19.84 to 20.61 pp. Mean coverage across settings ranged from 50.04\% at mean demand 1.44 m$^3$/day to 59.98\% at 0.96. Changing collection efficiency to 0.7 or 0.9 gave 53.07\% or 55.72\%. A two-dry-day event boundary gave 54.71\%, wider daily variation gave 54.44\%, and admitting and capping inflow before demand gave 54.47\%, compared with 54.48\% at baseline.
+
+\textbf{What this leaves open.} Moving from 15 to 20 m$^3$ added 1.44 pp to the lowest mean across the three design years. That comparison depends on which years were chosen. It also assumes daily demand varies independently of the rain, although some uses may be heavier on dry days. We checked these two assumptions below.
+\newpage
+\topic{8 \quad Does the 15 m$^3$ choice hold up over 30 years?}
+We replayed 1990--2019 with the 500 m$^2$ roof and 0.75 mm diversion used for sizing. All 11,322 daily records, including 1989 for warm-up, were present and marked complete [1]. Each rainfall year supplied 30 new demand paths shared across tanks and demand scenarios. \textbf{A year meets a target when its mean simulated coverage across those 30 paths reaches the target.} For example, the 15 m$^3$ tank counted as a success in 1994 at the 55\% target. Its baseline mean was 55.49\%, although only 28 of its 30 paths reached 55\%.
+
+\fig{0.82}{final/history_chart.png}{Figure 6. Each pair shows one year's mean coverage at 15 m$^3$. The baseline uses dry-day weight 1.00 and the triangles use 1.25. Both profiles have the same annual demand.}
+\begin{center}\small\begin{tabular}{lrrrrrr}\toprule
+&\multicolumn{3}{c}{Baseline demand}&\multicolumn{3}{c}{Dry-day weight 1.25}\\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}
+Target &14 m$^3$&15 m$^3$&20 m$^3$&14 m$^3$&15 m$^3$&20 m$^3$\\\midrule
+50\% &30&30&30&30&30&30\\
+55\% &26&27&29&24&25&28\\
+60\% &18&18&25&13&15&23\\\bottomrule
+\end{tabular}\\[-1pt]{\small Rainfall years with mean simulated coverage at or above target (out of 30).}\end{center}
+
+\textbf{Demand timing.} We weighted days with less than 0.1 mm of rain and left wet-day weights at 1. We then rescaled each path to preserve its original total demand separately in the warm-up and scored years. At 15 m$^3$, dry-day weights of 1.00, 1.10, 1.25 and 1.50 gave 27, 26, 25 and 24 years meeting 55\%. Relative to baseline, the median paired changes in annual coverage were 0, $-0.86$, $-2.00$ and $-3.53$ pp. These weights are scenarios for how a building might use water.
+
+\textbf{Sizing decision.} Under baseline demand, all three tanks met a 50\% target every year. At 60\%, moving from 14 to 15 m$^3$ added no qualifying years, while 20 m$^3$ gained seven. At 55\%, the 15 m$^3$ tank missed three baseline years (1991, 2005 and 2007) and five with weight 1.25. In 2005 the station recorded 3,214.5 mm, the second-highest total, and a 42-day dry spell. Even 20 m$^3$ supplied only 53.90\% that year at baseline. The choice depends on which shortfalls a building can accept. These counts describe one station's past weather. A site decision also needs local rainfall, measured demand, cost, space and a water-quality assessment [2].\par
+\small
+\textbf{References}\par
+[1] Hong Kong Observatory. \href{https://data.weather.gov.hk/weatherAPI/cis/csvfile/HKO/ALL/daily_HKO_RF_ALL.csv}{Daily total rainfall at the Hong Kong Observatory, official CSV.}\par
+[2] Water Supplies Department (2024). \href{https://www.wsd.gov.hk/filemanager/en/content_1459/technical_spec_grey_water_reuse_rainwater_harvest.pdf}{Technical Specifications on Grey Water Reuse and Rainwater Harvesting}, 2nd ed., sections 2.2 and 2.5.\par
+[3] NIST/SEMATECH. \href{https://www.itl.nist.gov/div898/handbook/pri/section3/pri3361.htm}{e-Handbook of Statistical Methods, section 5.3.3.6.1, Central Composite Designs.}
+\end{document}

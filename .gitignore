@@ -1,0 +1,12 @@
+.Rproj.user/
+.Rhistory
+.RData
+.Ruserdata
+__pycache__/
+/results/
+final/*.csv
+final/*.txt
+final/*.aux
+final/*.log
+final/*.out
+final/Report.pdf

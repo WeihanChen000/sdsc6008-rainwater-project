@@ -1,0 +1,40 @@
+
+Call:
+lm(formula = coverage_pct ~ factor(year) + (A + B + C)^2 + I(A^2) + 
+    I(B^2) + I(C^2), data = main)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-3.9545 -1.3936  0.0384  1.0996  4.2534 
+
+Coefficients:
+                 Estimate Std. Error t value Pr(>|t|)    
+(Intercept)       54.1956     0.2455 220.713  < 2e-16 ***
+factor(year)2022   7.4839     0.2390  31.313  < 2e-16 ***
+factor(year)2023   3.3504     0.2390  14.019  < 2e-16 ***
+A                  4.3906     0.1195  36.742  < 2e-16 ***
+B                 10.1329     0.1195  84.795  < 2e-16 ***
+C                 -1.2172     0.1195 -10.186  < 2e-16 ***
+I(A^2)            -1.1988     0.2357  -5.087 5.41e-07 ***
+I(B^2)            -3.9509     0.2357 -16.766  < 2e-16 ***
+I(C^2)             0.1543     0.2357   0.655 0.513030    
+A:B                0.4770     0.1336   3.571 0.000396 ***
+A:C               -0.3445     0.1336  -2.578 0.010254 *  
+B:C                0.1800     0.1336   1.348 0.178477    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 2.07 on 438 degrees of freedom
+Multiple R-squared:  0.9585,	Adjusted R-squared:  0.9575 
+F-statistic: 920.1 on 11 and 438 DF,  p-value: < 2.2e-16
+
+Analysis of Variance Table
+
+Model 1: coverage_pct ~ factor(year) + (A + B + C)^2 + I(A^2) + I(B^2) + 
+    I(C^2)
+Model 2: coverage_pct ~ factor(interaction(setting, year))
+  Res.Df     RSS Df Sum of Sq      F    Pr(>F)    
+1    438 1876.40                                  
+2    405   39.56 33    1836.8 569.88 < 2.2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1

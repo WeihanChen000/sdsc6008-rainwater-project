@@ -1,0 +1,13 @@
+Analysis of Variance Table
+
+Model 1: coverage_pct ~ factor(year) + (A + B + C)^2 + I(A^2) + I(B^2) + 
+    I(C^2)
+Model 2: coverage_pct ~ factor(year) * ((A + B + C)^2 + I(A^2) + I(B^2) + 
+    I(C^2))
+Model 3: coverage_pct ~ factor(interaction(setting, year))
+  Res.Df     RSS Df Sum of Sq        F    Pr(>F)    
+1    438 1876.40                                    
+2    420   81.44 18   1794.96 1020.962 < 2.2e-16 ***
+3    405   39.56 15     41.88   28.588 < 2.2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1

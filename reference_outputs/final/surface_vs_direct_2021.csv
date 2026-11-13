@@ -1,0 +1,3 @@
+"year","roof_m2","tank_m3","flush_mm","surface_pct","direct_mean_pct","surface_meets_55","direct_meets_55"
+2021,500,14,0.75,56.0641093887687,54.8959351615078,TRUE,FALSE
+2021,500,15,0.75,57.1342064881767,55.57434877213,TRUE,TRUE

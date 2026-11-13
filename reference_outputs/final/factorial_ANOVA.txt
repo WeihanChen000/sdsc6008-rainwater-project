@@ -1,0 +1,51 @@
+Analysis of Variance Table
+
+Response: coverage_pct
+              Df  Sum Sq Mean Sq   F value    Pr(>F)    
+factor(year)   2  2072.6  1036.3  169.0175 < 2.2e-16 ***
+A              1  4436.8  4436.8  723.6232 < 2.2e-16 ***
+B              1 24384.2 24384.2 3976.9404 < 2.2e-16 ***
+C              1   356.6   356.6   58.1535 6.353e-13 ***
+A:B            1    54.6    54.6    8.9076  0.003146 ** 
+A:C            1    28.5    28.5    4.6448  0.032187 *  
+B:C            1     7.8     7.8    1.2689  0.261147    
+A:B:C          1     2.3     2.3    0.3724  0.542281    
+Residuals    230  1410.2     6.1                        
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Call:
+lm(formula = coverage_pct ~ factor(year) + A * B * C, data = corners)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-4.1379 -2.5415  0.2703  2.4188  4.3809 
+
+Coefficients:
+                 Estimate Std. Error t value Pr(>|t|)    
+(Intercept)      49.44498    0.27684 178.602  < 2e-16 ***
+factor(year)2022  7.15992    0.39152  18.288  < 2e-16 ***
+factor(year)2023  2.93699    0.39152   7.502 1.37e-12 ***
+A                 4.29962    0.15984  26.900  < 2e-16 ***
+B                10.07973    0.15984  63.063  < 2e-16 ***
+C                -1.21888    0.15984  -7.626 6.35e-13 ***
+A:B               0.47704    0.15984   2.985  0.00315 ** 
+A:C              -0.34447    0.15984  -2.155  0.03219 *  
+B:C               0.18005    0.15984   1.126  0.26115    
+A:B:C             0.09754    0.15984   0.610  0.54228    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 2.476 on 230 degrees of freedom
+Multiple R-squared:  0.9569,	Adjusted R-squared:  0.9553 
+F-statistic:   568 on 9 and 230 DF,  p-value: < 2.2e-16
+
+Analysis of Variance Table
+
+Model 1: coverage_pct ~ factor(year) + A * B * C
+Model 2: coverage_pct ~ factor(year) * A * B * C
+  Res.Df     RSS Df Sum of Sq      F    Pr(>F)    
+1    230 1410.22                                  
+2    216   20.35 14    1389.9 1053.5 < 2.2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
